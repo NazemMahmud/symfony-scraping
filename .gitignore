@@ -1,0 +1,20 @@
+# Local environment files
+.idea
+.vscode
+.DS_Store
+**/.DS_Store
+*/.DS_Store
+
+# Environment file
+.env
+docker-compose.yml
+docker-conf/mysql/*
+
+
+# Project
+**/vendor
+*/vendor
+/vendor
+
+
+
