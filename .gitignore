@@ -5,16 +5,17 @@
 **/.DS_Store
 */.DS_Store
 
+
 # Environment file
 .env
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+
+
 docker-compose.yml
 docker-conf/mysql/*
-
-
-# Project
-**/vendor
-*/vendor
-/vendor
-
-
-
