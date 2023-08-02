@@ -1,0 +1,99 @@
+FROM php:8.2-fpm
+
+
+ENV COMPOSER_ALLOW_SUPERUSER 1
+ENV PANTHER_NO_SANDBOX 1
+ENV PANTHER_WEB_SERVER_PORT 9800
+
+# Chromium and ChromeDriver
+ENV PANTHER_NO_SANDBOX 1
+# Not mandatory, but recommended
+ENV PANTHER_CHROME_ARGUMENTS='--disable-dev-shm-usage'
+# Firefox and GeckoDriver (optional)
+ARG GECKODRIVER_VERSION=0.28.0
+
+#.build-deps $PHPIZE_DEPS
+
+#RUN apk add --no-cache --virtual zlib1g-dev g++ libzip-dev zip libicu-dev icu-dev libpq-dev gnupg graphviz make autoconf wget libnss3-tools \
+#    git unzip zlib-dev curl chromium chromium-chromedriver go rabbitmq-c rabbitmq-c-dev \
+#    && docker-php-ext-install intl opcache pdo pdo_mysql \
+#    && docker-php-ext-configure zip  \
+#    && docker-php-ext-install zip intl pdo_mysql opcache json mysqli \
+#    && pecl install apcu redis protobuf amqp \
+#    && docker-php-ext-enable apcu mysqli redis protobuf amqp
+
+#COPY ./docker-conf/php/php.ini /usr/local/etc/php/php.ini
+
+
+#gnupg2
+RUN apt-get update && apt-get install -y zlib1g-dev g++ git libicu-dev zip libzip-dev unzip libpq-dev wget gnupg libnss3-tools \
+    && docker-php-ext-install intl opcache pdo pdo_mysql \
+    && pecl install apcu \
+    && docker-php-ext-enable apcu \
+    && docker-php-ext-configure zip \
+    && docker-php-ext-install zip
+
+
+#RUN apt-get add --no-cache chromium chromium-chromedriver
+RUN apt-get update && apt-get install -y chromium chromium-chromedriver
+
+#RUN apt-get add --no-cache firefox libzip-dev; \
+#    docker-php-ext-install zip
+RUN apt-get update && apt-get install -y firefox libzip-dev; \
+    docker-php-ext-install zip
+
+RUN wget -q https://github.com/mozilla/geckodriver/releases/download/v$GECKODRIVER_VERSION/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz; \
+    tar -zxf geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz -C /usr/bin; \
+    rm geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz
+
+
+
+# chrome
+# Chromium and ChromeDriver
+#ENV PANTHER_NO_SANDBOX 1
+#ENV PANTHER_WEB_SERVER_PORT 9800
+## Not mandatory, but recommended
+#ENV PANTHER_CHROME_ARGUMENTS='--disable-dev-shm-usage'
+#RUN apt-get add --no-cache chromium chromium-chromedriver
+
+#RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add -
+#RUN echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list
+#RUN apt-get update
+#RUN apt-get install -y google-chrome-stable
+
+
+# Install "chromedriver" binary
+#RUN wget -q https://chromedriver.storage.googleapis.com/LATEST_RELEASE -O /tmp/chromedriver_version
+#RUN wget -q https://chromedriver.storage.googleapis.com/$(cat /tmp/chromedriver_version)/chromedriver_linux64.zip -O /tmp/chromedriver.zip
+#RUN unzip /tmp/chromedriver.zip -d /usr/local/bin/
+#RUN chmod +x /usr/local/bin/chromedriver
+
+############################
+#RUN curl -sSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb > /tmp/chrome.deb
+#RUN dpkg -i /tmp/chrome.deb || apt-get install -fy
+#RUN rm -rf /tmp/chrome.deb
+
+# Install Node.js and NPM for Panther
+#RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
+#    && apt-get install -y nodejs
+
+# Install Google Chrome and Chromedriver
+#RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
+#    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
+#    && apt-get update && apt-get install -y google-chrome-stable \
+#    && CHROME_VERSION=$(google-chrome --version | grep -oP "\d+\.\d+\.\d+\.\d+") \
+#    && CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION") \
+#    && wget -q "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip" \
+#    && unzip chromedriver_linux64.zip -d /usr/local/bin \
+#    && chmod +x /usr/local/bin/chromedriver \
+#    && rm chromedriver_linux64.zip
+
+WORKDIR /var/www/project
+COPY . /var/www/project
+
+
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+RUN curl -sS https://get.symfony.com/cli/installer | bash
+RUN mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
+RUN composer require --dev dbrekelmans/bdi
