@@ -3,13 +3,14 @@
 namespace App\Controller;
 
 use http\Client;
+use http\Exception\RuntimeException;
 use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Panther\Client as PantherClient;
 use Symfony\Component\Routing\Annotation\Route;
-
+use Symfony\Component\Panther\DomCrawler\Crawler;
 class ScrapeController extends AbstractController
 {
     #[Route('/api/scrape', name: 'app_scrape')]
@@ -23,26 +24,13 @@ class ScrapeController extends AbstractController
     #[Route('/api/scrape/new', name: 'app_scrape_store', methods: ['POST'])]
     public function store(Request $request): JsonResponse
     {
-        $driverPath = '/usr/local/bin/chromedriver'; // Path to the downloaded "chromedriver" binary
-        echo getenv('PANTHER_CHROME_DRIVER_BINARY');
         $data =  json_decode($request->getContent(), true);
 
-        $options = [
-            'chrome_options' => [
-                'binary' => '/usr/bin/google-chrome-stable', // Path to the Chrome binary (if different)
-                'args' => ['--disable-dev-shm-usage'],
-            ],
-            'chrome_driver_binary' => '/usr/local/bin/chromedriver', // Explicitly set ChromeDriver binary path
-        ];
-
         // Create the Panther client with the Chrome driver binary path
-//        $client = PantherClient::createChromeClient();
-        $client = PantherClient::createChromeClient(null, $options);
-
-
+        $client = PantherClient::createChromeClient();
         $crawler = $client->request('GET', 'https://rekvizitai.vz.lt/en/company-search/');
         $crawler = $this->handleCloudflareVerification($crawler);
-        dd($crawler);
+        dd($crawler->html());
 
 
 //        $driver = static::createPantherClient();
@@ -65,17 +53,65 @@ class ScrapeController extends AbstractController
 
     private function handleCloudflareVerification($crawler)
     {
-        // Check if the cookie permission modal is present
-        if ($crawler->filter('#cookiescript_close')->count() > 0) {
-            // Close the cookie permission modal
-            $this->closeCookiePermissionModal($crawler);
-            // Wait for the modal to close
-            sleep(3); // Adjust the delay based on your experience with the actual modal
-            // Reload the page to bypass the Cloudflare verification
-            $crawler = $crawler->reload();
+        // Check if Cloudflare verification is present
+//        sleep(4);
+        $crawler->filter('iframe')->waitForVisibility();
+        dd($crawler->html());
+        if ($crawler->filter('h2:contains("Checking if the site connection is secure")')->count() > 0) {
+            // Find the iframe containing the verification checkbox using the title attribute
+            $iframe = $crawler->filter('iframe[title="Widget containing a Cloudflare security challenge"]')->first();
+            if (!$iframe->count()) {
+                throw new RuntimeException('Cloudflare iframe not found.');
+            }
+            $client = $crawler->getClient();
+            $client->switchTo()->frame($iframe->attr('id'));
+
+            // Get the iframe id and use it as a dynamic part in the selector
+            // Find the verification checkbox inside the iframe using relative CSS selector
+            $checkboxLabel = $client->waitFor('.ctp-checkbox-label');
+            if (!$checkboxLabel->count()) {
+                throw new RuntimeException('Cloudflare verification checkbox not found.');
+            }
+//            dd($checkboxSelector);
+
+            $checkbox = $checkboxLabel->filter('input[type="checkbox"]')->first();
+
+            // Check the checkbox to complete the verification
+            $checkbox->check();
+
+            // Submit the verification form
+            $verificationForm = $crawler->selectButton('Continue')->form();
+            $crawler = $crawler->submit($verificationForm);
+
+            // Switch back to the default context (outside the iframe)
+            $client->switchTo()->defaultContent();
+            ///////
+
+            // Switch to the iframe
+//            $client = $crawler->getClient();
+//            $client->switchTo()->frame($iframe->attr('id'));
+//
+//            // Find the verification checkbox using the dynamic selector
+//            $checkbox = $client->waitFor($checkboxSelector);
+//
+//            // Check the checkbox to complete the verification
+//            $checkbox->check();
+//
+//            // Submit the verification form
+//            $verificationForm = $crawler->selectButton('Continue')->form();
+//            $crawler = $crawler->submit($verificationForm);
         }
-        $htmlContent = $crawler->getContent();
-        return $htmlContent;
+
+        // Check if the cookie permission modal is present
+//        if ($crawler->filter('#cookiescript_close')->count() > 0) {
+//            // Close the cookie permission modal
+//            $this->closeCookiePermissionModal($crawler);
+//            // Wait for the modal to close
+//            sleep(3); // Adjust the delay based on your experience with the actual modal
+//            // Reload the page to bypass the Cloudflare verification
+//            $crawler = $crawler->reload();
+//        }
+
 //        // Check if Cloudflare verification is present
 //        if ($crawler->filter('h1:contains("Please complete the security check to access")')->count() > 0) {
 ////            // Perform actions to pass the verification (e.g., click the checkbox)
@@ -85,7 +121,7 @@ class ScrapeController extends AbstractController
 ////            $crawler = $crawler->reload();
 ////        }
 //
-//        return $crawler;
+        return $crawler;
     }
 
     private function closeCookiePermissionModal($crawler)
