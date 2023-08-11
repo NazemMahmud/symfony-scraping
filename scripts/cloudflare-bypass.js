@@ -1,38 +1,70 @@
-// puppeteer-scripts/cloudflare-bypass-html.js
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
+const randomUseragent = require('random-useragent');
+const proxyChain = require('proxy-chain');
+const getFreeProxies = require('get-free-https-proxy');
+
+const headersToRemove = [
+    "host", "user-agent", "accept", "accept-encoding", "content-length",
+    "forwarded", "x-forwarded-proto", "x-forwarded-for", "x-cloud-trace-context"
+];
+
+const responseHeadersToRemove = ["Accept-Ranges", "Content-Length", "Keep-Alive", "Connection", "content-encoding", "set-cookie"];
 
 (async () => {
-    const browser = await puppeteer.launch();
+    // TODO: for dockerfile ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+    const userAgents = [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+    ];
+
+    const [proxy1] = await getFreeProxies();
+
+    // const oldProxyUrl = process.env.PROXY_SERVER;
+    const oldProxyUrl = 'http://202.69.38.82:8080';
+    // console.log('proxy: ', oldProxyUrl);
+    console.log('proxy 2: ', proxy1);
+    const newProxyUrl = await proxyChain.anonymizeProxy(oldProxyUrl);
+
+    let options = {
+        headless: 'new',
+        ignoreHTTPSErrors: true,
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+        args: ['--no-sandbox', '--disable-setuid-sandbox',
+            `--proxy-server=${proxy1.host}:${proxy1.port}`
+            // `--proxy-server=${newProxyUrl}`
+        ],
+        dumpio: false,
+        deviceScaleFactor: 1,
+        hasTouch: false,
+        isLandscape: false,
+        isMobile: false,
+    };
+    // if (process.env.PUPPETEER_USERDATADIR)
+    //     options.userDataDir = process.env.PUPPETEER_USERDATADIR;
+    // if (process.env.PUPPETEER_PROXY)
+    //     options.args.push(`--proxy-server=${process.env.PUPPETEER_PROXY}`);
+
+
+
+    let browser = await puppeteer.launch(options);
     const page = await browser.newPage();
+    const userAgent = randomUseragent.getRandom();
+    const UA = userAgent || USER_AGENT;
 
-    const URL = "https://www.ionos.com/tools/website-checker"; // https://rekvizitai.vz.lt/en/company-search/
+    await page.setViewport({ width: 1920, height: 3000 });
+    await page.setUserAgent(UA);
 
-    // Navigate to the site URL
-    await page.goto(URL);
-/*
-    // Wait for Cloudflare iframe to appear
-    // const iframeSelector = 'iframe[id^="cf-chl-widget-"]';
-    // await page.waitForSelector(iframeSelector);
+    // const URL = "https://nowsecure.nl/";
+    const URL = "https://rekvizitai.vz.lt/en/company-search";
 
-    // Switch to the Cloudflare iframe
-    // const iframeHandle = await page.$(iframeSelector);
-    // const frame = await iframeHandle.contentFrame();
+    await page.setDefaultNavigationTimeout(0);
+    await page.goto(URL, { waitUntil: 'networkidle2' });
+    // await page.screenshot({ path: 'example.png'});
 
-    // Wait for the checkbox to become visible
-    // const checkboxSelector = '.ctp-checkbox-label input[type="checkbox"]';
-    // await frame.waitForSelector(checkboxSelector);
+    const res = await page.content();
+    console.log(res);
 
-    // Click the checkbox
-    // await frame.click(checkboxSelector);
-
-    // Wait for the page to reload (this may vary based on actual behavior)
-    // await page.waitForNavigation();
-*/
-    // Get the HTML content of the page
-    const htmlContent = await page.content();
-
-    // Print the HTML content
-    console.log(htmlContent);
-
-    // Keep the browser open for further actions
+    await browser.close();
 })();

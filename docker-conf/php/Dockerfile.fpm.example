@@ -97,3 +97,21 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN curl -sS https://get.symfony.com/cli/installer | bash
 RUN mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
 RUN composer require --dev dbrekelmans/bdi
+
+
+
+#RUN apt-get add --no-cache firefox libzip-dev; \
+#    docker-php-ext-install zip
+#RUN apt-get update && apt-get install -y firefox libzip-dev; \
+#    docker-php-ext-install zip
+#
+#RUN wget -q https://github.com/mozilla/geckodriver/releases/download/v$GECKODRIVER_VERSION/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz; \
+#    tar -zxf geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz -C /usr/bin; \
+#    rm geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz
+
+# Install the ChromeDriver binary (adjust the version number if needed)
+ARG CHROMEDRIVER_VERSION=96.0.4664.45
+#RUN wget -q -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip \
+#    && unzip /tmp/chromedriver.zip -d /usr/local/bin/ \
+#    && chmod +x /usr/local/bin/chromedriver \
+#    && rm /tmp/chromedriver.zip
