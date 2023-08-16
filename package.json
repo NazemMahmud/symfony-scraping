@@ -18,6 +18,13 @@
   },
   "homepage": "https://github.com/NazemMahmud/nordstreet-practice#readme",
   "dependencies": {
-    "puppeteer": "^21.0.2"
+    "axios": "^1.4.0",
+    "dotenv": "^16.3.1",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7",
+    "puppeteer": "^21.0.2",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "request": "^2.88.2"
   }
 }

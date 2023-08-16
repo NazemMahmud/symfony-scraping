@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Facebook\WebDriver\WebDriverBy;
 use http\Client;
 use http\Exception\RuntimeException;
 use Symfony\Component\BrowserKit\HttpBrowser;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Panther\Client as PantherClient;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Panther\DomCrawler\Crawler;
+
 class ScrapeController extends AbstractController
 {
     #[Route('/api/scrape', name: 'app_scrape')]
@@ -25,11 +27,11 @@ class ScrapeController extends AbstractController
     public function store(Request $request): JsonResponse
     {
         $data =  json_decode($request->getContent(), true);
-
+/*
         // Create the Panther client with the Chrome driver binary path
         $client = PantherClient::createChromeClient();
         $crawler = $client->request('GET', 'https://rekvizitai.vz.lt/en/company-search/');
-        $crawler = $this->handleCloudflareVerification($crawler);
+        $crawler = $this->handleCloudflareVerification($crawler, $client);
         dd($crawler->html());
 
 
@@ -43,21 +45,48 @@ class ScrapeController extends AbstractController
 //        $form = $crawler->filter('form#formSearch')->form(); // Replace 'your_form_id' with the actual form ID or any other CSS selector
 //        $form['code'] = $data['registration_code']; // Replace 'input_field_name' with the name of the form field you want to fill
 //        $crawler->submit($form);
+*/
+
+        // Run the Puppeteer script to capture HTML content
+//        dd(__DIR__ . '/../../scripts/cloudflare-bypass.js');
+        $puppeteerScriptPath = __DIR__ . '/../../scripts/cloudflare-bypass.js';
+        exec("node $puppeteerScriptPath 2>&1", $output, $returnCode);
+
+        if ($returnCode !== 0) {
+            return $this->json([
+                'message' => 'An error occurred while running Puppeteer script.',
+                'code' => $returnCode,
+                'output' => $output,
+            ], 500);
+        }
+
+        // Get the captured HTML content from the output
+        $htmlContent = implode("\n", $output);
+//        dump('htmlContent: ');
+//        dd($htmlContent);
+
+        // You can now use $htmlContent for further processing
 
         return $this->json([
             'message' => 'Welcome to post controller!',
             'data' => $data,
-            "content" => $crawler
+            'html' => $htmlContent,
+//            "content" => $crawler
         ]);
     }
 
-    private function handleCloudflareVerification($crawler)
+    private function handleCloudflareVerification($crawler, $client)
     {
         // Check if Cloudflare verification is present
 //        sleep(4);
-        $crawler->filter('iframe')->waitForVisibility();
-        dd($crawler->html());
+
         if ($crawler->filter('h2:contains("Checking if the site connection is secure")')->count() > 0) {
+            $client->waitForVisibility('#turnstile-wrapper iframe');
+//        $client->waitForVisibility('#Container iframe');
+//            $myFrame = $client->findElement(WebDriverBy::cssSelector('#turnstile-wrapper iframe'));
+//            $client->switchTo()->frame($myFrame);
+//        $crawler->filter('iframe')->waitForVisibility();
+            dd($crawler->html());
             // Find the iframe containing the verification checkbox using the title attribute
             $iframe = $crawler->filter('iframe[title="Widget containing a Cloudflare security challenge"]')->first();
             if (!$iframe->count()) {

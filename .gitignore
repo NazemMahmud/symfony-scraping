@@ -8,14 +8,16 @@
 
 # Environment file
 .env
-/.env.local
-/.env.local.php
-/.env.*.local
-/config/secrets/prod/prod.decrypt.private.php
-/public/bundles/
-/var/
-/vendor/
+.env.local
+.env.local.php
+.env.*.local
+config/secrets/prod/prod.decrypt.private.php
+public/bundles/
+var/
+vendor/
 
 
 docker-compose.yml
 docker-conf/mysql/*
+
+node_modules
