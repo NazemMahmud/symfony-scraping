@@ -33,24 +33,41 @@ const config = {
     super: 'true',
     render: 'true', // true for get
     blockResources: 'false',
+    customHeaders: 'true',
 }
 // let proxyUrl = `http://${token}:super=true&waitUntil=domcontentloaded&render=true&&blockResources=false@proxy.scrape.do:8080`;
 let proxyUrl = `http://${token}:@proxy.scrape.do:8080`;
 let content = '';
 
-// const scrapePage = async () => {
-//     //
-//
-// }
-//
-// const callScrap = async () => {
-//   //
-// }
 
 const methodType = {
     GET: 'GET',
     POST: 'POST'
 };
+// "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundaryJWjHjqgnFEUVb3FS",
+// "Sec-Ch-Ua":'"Chromium";v="116", "Not)A;Brand";v="24", "Google Chrome";v="116"',
+// "Sec-Ch-Ua-Mobile": "?0",
+// "Sec-Ch-Ua-Platform": "Windows",
+// "Sec-Fetch-Dest": "document",
+// "Sec-Fetch-Mode": "navigate",
+// "Sec-Fetch-Site": "same-origin",
+// "Sec-Fetch-User": "?1",
+// "Upgrade-Insecure-Requests": 1,
+// "Accept-Encoding": "gzip, deflate, br",
+//     "Accept-Language": "en-US,en;q=0.9",
+// "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
+// "Cache-Control": "max-age=0",
+//     "Content-Length": 2372,
+
+const customHeadersPost = {
+    "authority": "rekvizitai.vz.lt",
+    "method": methodType.POST,
+    "path": "/en/company-search/1/",
+    "scheme": "https",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "Origin": "https://rekvizitai.vz.lt",
+    "Referer": "https://rekvizitai.vz.lt/en/company-search/1/"
+}
 
 /**
  *
@@ -63,6 +80,7 @@ const fetchCompanyInfo = async (registrationCode) => {
         "order": "1"
     });
     console.log(`data:::: ${data}`);
+    console.log(`headers:::: `, customHeadersPost);
 
     await request({
         'url': targetUrlPost,
@@ -70,7 +88,8 @@ const fetchCompanyInfo = async (registrationCode) => {
         'proxy': proxyUrl,
         'rejectUnauthorized': false, // ignore self-signed certificate
         'headers': {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...customHeadersPost
         },
         body: data
     }, function (error, response, body) {
@@ -80,6 +99,7 @@ const fetchCompanyInfo = async (registrationCode) => {
             content = body;
             const templateDir = path.join(__dirname, '../template');
             const responseFilePath = path.join(templateDir, 'response.html');
+            console.log(`content:::: ${content}`);
             writeFile(templateDir, responseFilePath, content);
         } else {
             console.log('ERROR:::: ');
