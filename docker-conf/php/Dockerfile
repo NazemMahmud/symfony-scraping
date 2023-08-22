@@ -3,14 +3,14 @@ FROM php:8.2-fpm-alpine
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
 RUN apk update && apk add --no-cache \
-     zlib-dev g++ git icu-dev libzip-dev libpng-dev libjpeg-turbo-dev zip unzip libpq-dev wget gnupg bash udev openssl tinyproxy \
-    && docker-php-ext-install intl opcache pdo pdo_mysql zip gd \
+     zlib-dev g++ git icu-dev libzip-dev libpng-dev libjpeg-turbo-dev zip unzip libpq-dev wget gnupg bash udev openssl  \
+    && docker-php-ext-install intl opcache pdo mysqli pdo_mysql zip gd \
     && docker-php-ext-configure gd --with-jpeg \
     && pecl install apcu \
     && docker-php-ext-enable apcu \
+    && docker-php-ext-enable pdo_mysql \
     && docker-php-ext-configure zip
 
-#RUN  chromium-chromedriver
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
 RUN apk update && apk add --no-cache chromium chromium-chromedriver  \
@@ -21,23 +21,15 @@ RUN apk add --no-cache nodejs npm
 
 ENV PUPPETEER_EXECUTABLE_PATH='/usr/bin/chromium-browser'
 
-# Install Puppeteer and its dependencies
-#RUN npm install puppeteer
-
 # Install other project dependencies
 COPY package*.json ./
-#RUN npm install
-
 
 WORKDIR /var/www/project
 COPY . /var/www/project
-
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 RUN curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/usr/local/bin
 RUN mv /usr/local/bin/symfony /usr/local/bin/symfony
-
-COPY tinyproxy.conf /etc/tinyproxy.conf
 
 EXPOSE 9800
