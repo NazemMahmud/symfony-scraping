@@ -77,15 +77,11 @@ class ScrapeController extends AbstractController
 
     private function handleCloudflareVerification($crawler, $client)
     {
-        // Check if Cloudflare verification is present
-//        sleep(4);
+
 
         if ($crawler->filter('h2:contains("Checking if the site connection is secure")')->count() > 0) {
             $client->waitForVisibility('#turnstile-wrapper iframe');
-//        $client->waitForVisibility('#Container iframe');
-//            $myFrame = $client->findElement(WebDriverBy::cssSelector('#turnstile-wrapper iframe'));
-//            $client->switchTo()->frame($myFrame);
-//        $crawler->filter('iframe')->waitForVisibility();
+
             dd($crawler->html());
             // Find the iframe containing the verification checkbox using the title attribute
             $iframe = $crawler->filter('iframe[title="Widget containing a Cloudflare security challenge"]')->first();
@@ -101,7 +97,7 @@ class ScrapeController extends AbstractController
             if (!$checkboxLabel->count()) {
                 throw new RuntimeException('Cloudflare verification checkbox not found.');
             }
-//            dd($checkboxSelector);
+
 
             $checkbox = $checkboxLabel->filter('input[type="checkbox"]')->first();
 

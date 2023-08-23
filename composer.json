@@ -19,6 +19,7 @@
         "symfony/framework-bundle": "6.3.*",
         "symfony/panther": "^2.1",
         "symfony/runtime": "6.3.*",
+        "symfony/validator": "6.3.*",
         "symfony/yaml": "6.3.*"
     },
     "require-dev": {
