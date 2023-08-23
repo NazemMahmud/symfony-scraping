@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Exceptions\ScrapeException;
 use App\Requests\NewCompanyRequest;
 use App\Services\ScrapeService;
 use App\Traits\HttpResponse;
@@ -34,16 +35,15 @@ class CompanyController extends AbstractController
 
     /**
      * @param NewCompanyRequest $request
-     * @throws ApiException
-     * @return ApiException|JsonResponse
+     * @return JsonResponse
      */
     #[Route('/api/company/new', name: 'app_company_store', methods: ['POST'])]
-    public function store(NewCompanyRequest $request)
+    public function store(NewCompanyRequest $request): JsonResponse
     {
         try {
 
             $data = $request->getContent();
-            $this->scrapeService->scrapeCompanyInfo('');
+            $this->scrapeService->scrapeCompanyInfo($data['registration_code']);
 
             // Validate data
 //        $task = new Company();
@@ -66,6 +66,8 @@ class CompanyController extends AbstractController
             return new JsonResponse(['message' => 'Company created'], 201);
         } catch (BadRequestHttpException $ex) {
             return $this->error_response($ex->getMessage(), $ex->getStatusCode() ?? Response::HTTP_BAD_REQUEST);
+        } catch (ScrapeException $scrapeEx) {
+            return $this->error_response($scrapeEx->getMessage(), $scrapeEx->getStatusCode() ?? Response::HTTP_BAD_REQUEST);
         }
 
 //        return $this->json([
