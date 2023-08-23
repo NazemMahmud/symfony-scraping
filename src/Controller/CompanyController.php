@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Company;
 use App\Exceptions\ScrapeException;
 use App\Requests\NewCompanyRequest;
 use App\Services\ScrapeService;
@@ -12,8 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use App\Exceptions\ApiException;
+use Doctrine\Persistence\ManagerRegistry;
 
 
 class CompanyController extends AbstractController
@@ -38,43 +38,30 @@ class CompanyController extends AbstractController
      * @return JsonResponse
      */
     #[Route('/api/company/new', name: 'app_company_store', methods: ['POST'])]
-    public function store(NewCompanyRequest $request): JsonResponse
+    public function store(ManagerRegistry $doctrine, NewCompanyRequest $request): JsonResponse
     {
         try {
 
             $data = $request->getContent();
-            $this->scrapeService->scrapeCompanyInfo($data['registration_code']);
+            $info = $this->scrapeService->scrapeCompanyInfo($data['registration_code']);
 
-            // Validate data
-//        $task = new Company();
-//        $task->setTitle($data['title']); // Assuming 'title' is part of the payload
 
-//        $errors = $validator->validate($task);
-//        if (count($errors) > 0) {
-//            $errorMessages = [];
-//            foreach ($errors as $error) {
-//                $errorMessages[$error->getPropertyPath()] = $error->getMessage();
-//            }
-//            throw new ApiException(400, json_encode($errorMessages));
-//        }
-//
-//        // Valid data, persist entity
-//        $entityManager = $this->getDoctrine()->getManager();
-//        $entityManager->persist($task);
-//        $entityManager->flush();
+            $company = new Company();
+            $company->setName($info['companyName']);
+            $company->setRegiCode($info['code']);
+            $company->setVat($info['vat']);
+            $company->setAddress($info['address']);
+            $company->setMobilePhone($info['mobilePhone']);
 
-            return new JsonResponse(['message' => 'Company created'], 201);
+            $entityManager = $doctrine->getManager();
+            $entityManager->persist($company);
+            $entityManager->flush();
+
+            return $this->success_response(['message' => 'Company created'], 201);
         } catch (BadRequestHttpException $ex) {
             return $this->error_response($ex->getMessage(), $ex->getStatusCode() ?? Response::HTTP_BAD_REQUEST);
         } catch (ScrapeException $scrapeEx) {
             return $this->error_response($scrapeEx->getMessage(), $scrapeEx->getStatusCode() ?? Response::HTTP_BAD_REQUEST);
         }
-
-//        return $this->json([
-//            'message' => 'Welcome to post controller!',
-//            'data' => $data,
-//            'html' => $htmlContent,
-////            "content" => $crawler
-//        ]);
     }
 }

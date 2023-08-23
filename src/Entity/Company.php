@@ -5,6 +5,11 @@ namespace App\Entity;
 use App\Repository\CompanyRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * todo:
+ * make company name unique
+ */
+
 #[ORM\Entity(repositoryClass: CompanyRepository::class)]
 class Company
 {

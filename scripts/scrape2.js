@@ -208,7 +208,7 @@ const getData = async () => {
                             details.address = valueCell.textContent.trim();
                             count++;
                         }
-                    } else if (name === 'Mobile phone') {
+                    } else if (name === 'Mobile phone' || name === 'Phone') {
                         const valueCell = nameCell.nextElementSibling;
                         if (valueCell && valueCell.classList.contains('value')) {
                             const img = valueCell.querySelector('img');

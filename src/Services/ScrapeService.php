@@ -21,8 +21,9 @@ class ScrapeService
             throw new BadRequestHttpException('Registration code should not be empty');
         }
 
+        $escapedRegistrationCode = escapeshellarg($registrationCode);
         $puppeteerScriptPath = __DIR__ . '/../../scripts/cloudflare-bypass.js';
-        exec("node $puppeteerScriptPath 2>&1", $output, $returnCode);
+        exec("node $puppeteerScriptPath $escapedRegistrationCode 2>&1", $output, $returnCode);
 
         $output = implode("\n", $output);
 
