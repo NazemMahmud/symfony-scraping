@@ -3,16 +3,26 @@
 namespace App\Controller;
 
 use App\Requests\NewCompanyRequest;
+use App\Services\ScrapeService;
+use App\Traits\HttpResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use App\Exception\ApiException;
+use App\Exceptions\ApiException;
 
 
 class CompanyController extends AbstractController
 {
+    use HttpResponse;
+
+    public function __construct(protected ScrapeService $scrapeService)
+    {
+    }
+
     #[Route('/company', name: 'app_company')]
     public function index(): JsonResponse
     {
@@ -22,36 +32,47 @@ class CompanyController extends AbstractController
         ]);
     }
 
+    /**
+     * @param NewCompanyRequest $request
+     * @throws ApiException
+     * @return ApiException|JsonResponse
+     */
     #[Route('/api/company/new', name: 'app_company_store', methods: ['POST'])]
-    public function store(NewCompanyRequest $request, ValidatorInterface $validator): JsonResponse
+    public function store(NewCompanyRequest $request)
     {
-        $data =  json_decode($request->getContent(), true);
+        try {
 
-        // Validate data
-        $task = new Task();
-        $task->setTitle($data['title']); // Assuming 'title' is part of the payload
+            $data = $request->getContent();
+            $this->scrapeService->scrapeCompanyInfo('');
 
-        $errors = $validator->validate($task);
-        if (count($errors) > 0) {
-            $errorMessages = [];
-            foreach ($errors as $error) {
-                $errorMessages[$error->getPropertyPath()] = $error->getMessage();
-            }
-            throw new ApiException(400, json_encode($errorMessages));
+            // Validate data
+//        $task = new Company();
+//        $task->setTitle($data['title']); // Assuming 'title' is part of the payload
+
+//        $errors = $validator->validate($task);
+//        if (count($errors) > 0) {
+//            $errorMessages = [];
+//            foreach ($errors as $error) {
+//                $errorMessages[$error->getPropertyPath()] = $error->getMessage();
+//            }
+//            throw new ApiException(400, json_encode($errorMessages));
+//        }
+//
+//        // Valid data, persist entity
+//        $entityManager = $this->getDoctrine()->getManager();
+//        $entityManager->persist($task);
+//        $entityManager->flush();
+
+            return new JsonResponse(['message' => 'Company created'], 201);
+        } catch (BadRequestHttpException $ex) {
+            return $this->error_response($ex->getMessage(), $ex->getStatusCode() ?? Response::HTTP_BAD_REQUEST);
         }
 
-        // Valid data, persist entity
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($task);
-        $entityManager->flush();
-
-        return new JsonResponse(['message' => 'Task created'], 201);
-
-        return $this->json([
-            'message' => 'Welcome to post controller!',
-            'data' => $data,
-            'html' => $htmlContent,
-//            "content" => $crawler
-        ]);
+//        return $this->json([
+//            'message' => 'Welcome to post controller!',
+//            'data' => $data,
+//            'html' => $htmlContent,
+////            "content" => $crawler
+//        ]);
     }
 }

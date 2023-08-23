@@ -2,17 +2,23 @@
 
 namespace App\Requests;
 
+use App\Traits\HttpResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class BaseRequest
 {
+    use HttpResponse;
+
+    protected array $requestData = [];
+
     public function __construct(protected ValidatorInterface $validator)
     {
         $this->populate();
 
-        if ($this->autoValidateRequest()) {
+        if (!$this->autoValidateRequest()) {
             $this->validate();
         }
     }
@@ -25,17 +31,14 @@ class BaseRequest
 
         foreach ($errors as $message) {
             $messages['errors'][] = [
-                'property' => $message->getPropertyPath(),
-                'value' => $message->getInvalidValue(),
-                'message' => $message->getMessage(),
+                $message->getPropertyPath() => $message->getMessage(),
+                'value' => $message->getInvalidValue()
             ];
         }
 
         if (count($messages['errors']) > 0) {
-            $response = new JsonResponse($messages, 201);
+            $response = $this->error_response($messages['errors'], Response::HTTP_FORBIDDEN);
             $response->send();
-
-            exit;
         }
     }
 
@@ -48,7 +51,8 @@ class BaseRequest
 
     protected function populate(): void
     {
-        foreach ($this->getRequest()->toArray() as $property => $value) {
+        $this->requestData = $this->getRequest()->toArray();
+        foreach ($this->requestData as $property => $value) {
             if (property_exists($this, $property)) {
                 $this->{$property} = $value;
             }
@@ -59,6 +63,11 @@ class BaseRequest
     protected function autoValidateRequest(): bool
     {
         return true;
+    }
+
+    public function getContent(): array
+    {
+        return $this->requestData;
     }
 
 }
