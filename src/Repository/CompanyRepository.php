@@ -3,8 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\Company;
+use App\Exceptions\DBException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Log\LoggerInterface;
 
 /**
  * @extends ServiceEntityRepository<Company>
@@ -16,9 +18,33 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CompanyRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(protected LoggerInterface $logger, ManagerRegistry $registry, )
     {
         parent::__construct($registry, Company::class);
+    }
+
+    public function addCompanyInfo(array $data): Company
+    {
+        try {
+            $company = new Company();
+            $company->setName($data['companyName']);
+            $company->setRegiCode($data['code']);
+            $company->setVat($data['vat']);
+            $company->setAddress($data['address']);
+            $company->setMobilePhone($data['mobilePhone']);
+
+            $this->getEntityManager()->persist($company);
+            $this->getEntityManager()->flush();
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            throw new DBException(message: 'Failed to store company data');
+        }
+
+        return $company;
+
+//        $entityManager = $doctrine->getManager();
+//        $entityManager->persist($company);
+//        $entityManager->flush();
     }
 
 //    /**

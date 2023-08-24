@@ -3,17 +3,17 @@
 namespace App\Exceptions;
 
 use App\Traits\HttpResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 
-class ScrapeException extends HttpException
+class DBException extends HttpException
 {
     use HttpResponse;
 
     public function __construct(
-        $statusCode = Response::HTTP_NOT_FOUND,
-        $message = 'Something went wrong with scraping',
+        $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR,
+        $message = 'Something went wrong while saving data',
         \Throwable $previous = null,
         array $headers = [],
         $code = 0)

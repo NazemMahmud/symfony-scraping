@@ -13,6 +13,14 @@ TODO:
 5. Turnover Database
 
 
+Next Todo:
+- Index, Delete, Update API
+- Check with original scraping script (from file and from site)
+- Create turnover crapping
+- Create & Get API for turnover
+- Add pagination and filtering
+- Front end
+
 NOTE:
 - remove scripts/test directory after done everything
 

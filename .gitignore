@@ -16,6 +16,9 @@ public/bundles/
 var/
 vendor/
 
+# storage
+storage/logs/*
+
 
 docker-compose.yml
 docker-compose.override.*

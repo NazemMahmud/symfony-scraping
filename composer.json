@@ -19,6 +19,7 @@
         "symfony/flex": "^2",
         "symfony/framework-bundle": "6.3.*",
         "symfony/http-kernel": "6.3.*",
+        "symfony/monolog-bundle": "*",
         "symfony/panther": "^2.1",
         "symfony/runtime": "6.3.*",
         "symfony/validator": "6.3.*",
