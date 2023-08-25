@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\Company;
 
 use App\Requests\NewCompanyRequest;
 use App\Services\ScrapeService;
@@ -48,7 +47,7 @@ class CompanyController extends AbstractController
 
             $data = $request->getContent();
             $info = $this->scrapeService->scrapeCompanyInfo($data['registration_code']);
-            $company = $this->companyRepo->addCompanyInfo($info);
+            $this->companyRepo->addCompanyInfo($info);
 
             return $this->success_response(['message' => 'Company created'], 201);
         } catch (BadRequestHttpException $badReqEx) {
@@ -57,9 +56,45 @@ class CompanyController extends AbstractController
             return $this->error_response($scrapeEx->getMessage(), $scrapeEx->getStatusCode() ?? Response::HTTP_BAD_REQUEST);
         } catch (DBException $dbEx) {
             return $this->error_response($dbEx->getMessage(), $dbEx->getStatusCode() ?? Response::HTTP_INTERNAL_SERVER_ERROR);
-        } catch (Exception $ex) {
+        }  catch (Exception $ex) {
             return $this->error_response($ex->getMessage(), $ex->getStatusCode() ?? Response::HTTP_NOT_FOUND);
         }
+    }
 
+    /**
+     * @Route("/api/companies/{id}", name="delete_company", methods={"DELETE"})
+     */
+    public function deleteCompany(Company $company): JsonResponse
+    {
+        try {
+            $this->getDoctrine()->getManager()->remove($company);
+            $this->getDoctrine()->getManager()->flush();
+
+            return $this->success_response(['message' => 'Company deleted']);
+        } catch (\Exception $ex) {
+            return $this->error_response('Failed to delete company', Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @Route("/api/companies/{id}", name="update_company", methods={"PUT"})
+     */
+    public function updateCompany(Request $request, Company $company): JsonResponse
+    {
+        try {
+            $data = json_decode($request->getContent(), true);
+
+            // Update entity properties based on incoming data
+            $company->setName($data['name']);
+            $company->setVat($data['vat']);
+            $company->setAddress($data['address']);
+            // ... other properties
+
+            $this->getDoctrine()->getManager()->flush();
+
+            return $this->success_response(['message' => 'Company updated']);
+        } catch (\Exception $ex) {
+            return $this->error_response('Failed to update company', Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

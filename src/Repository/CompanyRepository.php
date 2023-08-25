@@ -7,6 +7,8 @@ use App\Exceptions\DBException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Config\Definition\Exception\DuplicateKeyException;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @extends ServiceEntityRepository<Company>
@@ -26,6 +28,8 @@ class CompanyRepository extends ServiceEntityRepository
     public function addCompanyInfo(array $data): Company
     {
         try {
+            $this->checkDuplicate($data['code']);
+
             $company = new Company();
             $company->setName($data['companyName']);
             $company->setRegiCode($data['code']);
@@ -35,16 +39,26 @@ class CompanyRepository extends ServiceEntityRepository
 
             $this->getEntityManager()->persist($company);
             $this->getEntityManager()->flush();
+        } catch (DuplicateKeyException $ex) {
+            throw new DBException($ex->getCode(), $ex->getMessage());
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             throw new DBException(message: 'Failed to store company data');
         }
 
         return $company;
+    }
 
-//        $entityManager = $doctrine->getManager();
-//        $entityManager->persist($company);
-//        $entityManager->flush();
+    /**
+     * Check for unique registration_code
+     * @param string $registrationCode
+     * @return void
+     */
+    private function checkDuplicate(string $registrationCode)
+    {
+        if ($this->findOneBy(['regi_code' => $registrationCode])) {
+            throw new DuplicateKeyException('The registration code is already in use.', Response::HTTP_CONFLICT);
+        }
     }
 
 //    /**

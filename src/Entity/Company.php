@@ -4,13 +4,13 @@ namespace App\Entity;
 
 use App\Repository\CompanyRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\Index;
 
-/**
- * todo:
- * make company name unique
- */
+
 
 #[ORM\Entity(repositoryClass: CompanyRepository::class)]
+#[Index(columns: ["regi_code"], name: "regi_code_idx")]
+#[ORM\HasLifecycleCallbacks]
 class Company
 {
     #[ORM\Id]
@@ -21,7 +21,7 @@ class Company
     #[ORM\Column(length: 100)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 40)]
+    #[ORM\Column(length: 40,  unique: true)]
     private ?string $regi_code = null;
 
     #[ORM\Column(length: 40)]
@@ -33,7 +33,13 @@ class Company
     #[ORM\Column(length: 200, nullable: true)]
     private ?string $mobile_phone = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'datetime')]
+    private ?\DateTimeInterface $created_at;
+
+    #[ORM\Column(type: 'datetime')]
+    private ?\DateTimeInterface $updated_at;
+
+    #[ORM\Column(type: 'datetime' , nullable: true)]
     private ?\DateTimeInterface $deleted_at = null;
 
     public function getId(): ?int
@@ -98,6 +104,34 @@ class Company
     {
         $this->mobile_phone = $mobile_phone;
 
+        return $this;
+    }
+
+
+    public function getCreatedAt(): \DateTimeInterface|null
+    {
+        return $this->created_at;
+    }
+
+    #[ORM\PrePersist]
+    public function setCreatedAt(): static
+    {
+        $this->created_at = new \DateTime();
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): \DateTimeInterface
+    {
+        return $this->updated_at;
+    }
+
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function setUpdatedAt(): static
+    {
+        $this->updated_at = new \DateTime();
         return $this;
     }
 
