@@ -61,19 +61,15 @@ class CompanyController extends AbstractController
         }
     }
 
-    /**
-     * @Route("/api/companies/{id}", name="delete_company", methods={"DELETE"})
-     */
-    public function deleteCompany(Company $company): JsonResponse
+    #[Route('/api/company/{id}', name: 'app_company_delete', methods: ['DELETE'])]
+    public function deleteCompany(int $id): JsonResponse
     {
-        try {
-            $this->getDoctrine()->getManager()->remove($company);
-            $this->getDoctrine()->getManager()->flush();
-
-            return $this->success_response(['message' => 'Company deleted']);
-        } catch (\Exception $ex) {
-            return $this->error_response('Failed to delete company', Response::HTTP_INTERNAL_SERVER_ERROR);
+        if ($company = $this->companyRepo->findOneBy(['id' => $id, 'deleted_at' => null])) {
+            $this->companyRepo->deleteCompany($company);
+            return $this->success_response(['message' => 'Company successfully deleted']);
         }
+
+        return $this->error_response('Company not found', Response::HTTP_NOT_FOUND);
     }
 
     /**

@@ -25,6 +25,13 @@ class CompanyRepository extends ServiceEntityRepository
         parent::__construct($registry, Company::class);
     }
 
+    /**
+     * add new company info
+     * @param array $data
+     * @return Company
+     * @throws DBException
+     * @return \Exception
+     */
     public function addCompanyInfo(array $data): Company
     {
         try {
@@ -50,39 +57,27 @@ class CompanyRepository extends ServiceEntityRepository
     }
 
     /**
-     * Check for unique registration_code
+     * Check for unique registration_code entry
      * @param string $registrationCode
      * @return void
+     * @throws DuplicateKeyException
      */
-    private function checkDuplicate(string $registrationCode)
+    private function checkDuplicate(string $registrationCode): void
     {
         if ($this->findOneBy(['regi_code' => $registrationCode])) {
             throw new DuplicateKeyException('The registration code is already in use.', Response::HTTP_CONFLICT);
         }
     }
 
-//    /**
-//     * @return Company[] Returns an array of Company objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('c')
-//            ->andWhere('c.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('c.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?Company
-//    {
-//        return $this->createQueryBuilder('c')
-//            ->andWhere('c.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    /**
+     * Check for unique registration_code
+     * @param Company $company
+     * @return void
+     */
+    public function deleteCompany(Company $company)
+    {
+        $company->setSoftDelete(new \DateTime());
+        $entityManager = $this->getEntityManager();
+        $entityManager->flush();
+    }
 }

@@ -5,11 +5,11 @@
 # TODO:
 - check with sending extra header to find out for the POSt request
 - CRUD
-
 1. Create DB and connect with PHPMYADMIN
    1. Dockerfile, env & compose file updated for migration; initial migration done
-4. Error Log / Handler: Custom exception classes and Logger are used for error handling and to store error details
-5. Turnover Database
+2. Error Log / Handler: Custom exception classes and Logger are used for error handling and to store error details
+3. Redis: for index API
+4. Turnover Database
 
 
 # Next Todo:
@@ -21,6 +21,11 @@
 - Create & Get API for turnover
 - Add pagination and filtering
 - Front end
+
+# Additional:
+- Add index for column registration code
+- Use exception handler and Logger for error handling
+- Store the logs in log file (each day new log file will generate) inside the project directory instead of var/log/dev.log
 
 # NOTE:
 - remove scripts/test directory after done everything

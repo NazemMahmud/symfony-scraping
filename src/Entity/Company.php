@@ -140,7 +140,7 @@ class Company
         return $this->deleted_at;
     }
 
-    public function setDeletedAt(?\DateTimeInterface $deleted_at ): static
+    public function setSoftDelete(?\DateTimeInterface $deleted_at ): static
     {
         $this->deleted_at = $deleted_at ;
 
