@@ -53,6 +53,7 @@ class CompanyRepository extends ServiceEntityRepository
 
     /**
      * Check for unique registration_code entry
+     *
      * @param string $registrationCode
      * @return void
      * @throws DuplicateKeyException
@@ -66,6 +67,7 @@ class CompanyRepository extends ServiceEntityRepository
 
     /**
      * soft delete a company
+     *
      * @param Company $company
      * @return void
      */
@@ -78,6 +80,7 @@ class CompanyRepository extends ServiceEntityRepository
 
     /**
      * Update company information, for simplicity will work for PUT request
+     *
      * @param Company $company
      * @return void
      */
@@ -101,10 +104,18 @@ class CompanyRepository extends ServiceEntityRepository
     }
 
 
+    /**
+     * Pagination & filtering
+     * TODO: filtering
+     *
+     * @param int $page
+     * @param int $pageSize
+     * @return Paginator
+     */
     public function getPaginatedData(int $page, int $pageSize): Paginator
     {
         $query =  $this->createQueryBuilder('c')
-            ->andWhere('c.deletedAt IS NULL')
+            ->andWhere('c.deleted_at IS NULL')
             ->orderBy('c.id', 'DESC')
             ->getQuery();
 

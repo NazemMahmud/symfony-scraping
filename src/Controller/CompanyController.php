@@ -28,19 +28,48 @@ class CompanyController extends AbstractController
     )
     {}
 
+    /**
+     * for pagination optional parameters: page => to define data range, perPage => max number of data return
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     #[Route('/api/companies', name: 'app_company_index', methods: ['GET'])]
     public function index(Request $request): JsonResponse
     {
         $queryParams = $request->query->all();
         $page = $queryParams['page'] ?? 1;
         $pageSize = $queryParams['perPage'] ?? 10;
+        $paginator = $this->companyRepo->getPaginatedData($page, $pageSize);
 
+        if ($paginator->count()) {
+            $companies = [];
+            foreach ($paginator as $company) {
+                $companies[] = [
+                    'id' => $company->getId(),
+                    'name' => $company->getName(),
+                    'registration_code' => $company->getRegiCode(),
+                    'vat' => $company->getVat(),
+                    'address' => $company->getAddress(),
+                    'mobile_phone' => $company->getMobilePhone(),
+                ];
+            }
 
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/CompanyController.php',
-            'data' => $queryParams
-        ]);
+            $data = [
+                'items' => $companies,
+                'pagination' => [
+                    'total_items' => $paginator->count(),
+                    'current_page' => (int)$page,
+                    'last_page' => ceil($paginator->count() / $pageSize),
+                    'has_previous_page' => $page > 1,
+                    'has_next_page' => $paginator->count() > $pageSize * $page,
+                ],
+            ];
+
+            return $this->success_response(['data' =>$data]);
+        }
+
+        return $this->success_response(['message' => 'No data found, insert some data']);
     }
 
     /**
