@@ -5,22 +5,16 @@ namespace App\Repository;
 use App\Entity\Company;
 use App\Exceptions\DBException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\Definition\Exception\DuplicateKeyException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @extends ServiceEntityRepository<Company>
- *
- * @method Company|null find($id, $lockMode = null, $lockVersion = null)
- * @method Company|null findOneBy(array $criteria, array $orderBy = null)
- * @method Company[]    findAll()
- * @method Company[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
+
 class CompanyRepository extends ServiceEntityRepository
 {
-    public function __construct(protected LoggerInterface $logger, ManagerRegistry $registry, )
+    public function __construct(protected LoggerInterface $logger, ManagerRegistry $registry)
     {
         parent::__construct($registry, Company::class);
     }
@@ -70,7 +64,7 @@ class CompanyRepository extends ServiceEntityRepository
     }
 
     /**
-     * Check for unique registration_code
+     * soft delete a company
      * @param Company $company
      * @return void
      */
@@ -79,5 +73,29 @@ class CompanyRepository extends ServiceEntityRepository
         $company->setSoftDelete(new \DateTime());
         $entityManager = $this->getEntityManager();
         $entityManager->flush();
+    }
+
+    /**
+     * Update company information, for simplicity will work for PUT request
+     * @param Company $company
+     * @return void
+     */
+    public function updateCompany(Company $company, array $data)
+    {
+            $criteria = new Criteria();
+            $criteria->where(Criteria::expr()->eq('regi_code', $data['registration_code']));
+            $criteria->andWhere(Criteria::expr()->neq('id',  $company->getId()));
+            if($this->matching($criteria)) {
+                throw new DBException( Response::HTTP_CONFLICT, 'The registration code is already in use.',);
+            }
+
+            $company->setName($data['name']);
+            $company->setRegiCode($data['registration_code']);
+            $company->setVat($data['vat']);
+            $company->setAddress($data['address']);
+            $company->setMobilePhone($data['mobile_phone']);
+
+            $this->getEntityManager()->persist($company);
+            $this->getEntityManager()->flush();
     }
 }

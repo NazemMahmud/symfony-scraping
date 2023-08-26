@@ -13,13 +13,16 @@
 
 
 # Next Todo:
-- Store API: check unique value for regi code [DONE]
-  - Indexing for regi code [LATER]
-- Index, Delete, Update API
+- Store API: check unique value for regi code
+  - Indexing for regi code 
+- Delete, Update [DONE] | Index, API
+- Add pagination and filtering. store last pagination and filtering in redis and fetch
+- Use redis: store: 1. all registration code, 2. ALL ids, 3: when delete remobe those ids
+- 
 - Check with original scraping script (from file and from site)
 - Create turnover crapping
 - Create & Get API for turnover
-- Add pagination and filtering
+- 
 - Front end
 
 # Additional:
@@ -32,3 +35,13 @@
 
 
 mysql -u root -p
+
+
+# Cache clear:
+```bash
+Failed to remove directory &quot;/var/www/project/var/cache/dev/ContainerCWmhSbR&quot;: rmdir(/var/www/project/var/cache/dev/._Ed+): Directory not empty (500 Internal Server Error) 
+```
+For this, **clear cache**: 
+```shell
+php bin/console cache:clear
+```

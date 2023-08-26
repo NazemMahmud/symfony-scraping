@@ -5,7 +5,6 @@ namespace App\Requests;
 use App\Traits\HttpResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class BaseRequest
@@ -27,16 +26,13 @@ class BaseRequest
     public function validate()
     {
         $errors = $this->validator->validate($this);
-        $messages = ['message' => 'validation_failed', 'errors' => []];
+        $messages = [];
 
-        foreach ($errors as $message) {
-            $messages['errors'][] = [
-                $message->getPropertyPath() => $message->getMessage(),
-                'value' => $message->getInvalidValue()
-            ];
+        foreach ($errors as $error) {
+            $messages[] = $error->getMessage();
         }
 
-        if (count($messages['errors']) > 0) {
+        if (count($messages)) {
             $response = $this->error_response($messages['errors'], Response::HTTP_FORBIDDEN);
             $response->send();
         }
@@ -69,5 +65,4 @@ class BaseRequest
     {
         return $this->requestData;
     }
-
 }

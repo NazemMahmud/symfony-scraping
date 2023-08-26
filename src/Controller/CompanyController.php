@@ -4,6 +4,7 @@ namespace App\Controller;
 
 
 use App\Requests\NewCompanyRequest;
+use App\Requests\UpdateCompanyRequest;
 use App\Services\ScrapeService;
 use App\Traits\HttpResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -44,9 +45,8 @@ class CompanyController extends AbstractController
     public function store(NewCompanyRequest $request): JsonResponse
     {
         try {
-
-            $data = $request->getContent();
-            $info = $this->scrapeService->scrapeCompanyInfo($data['registration_code']);
+            // todo: check it
+            $info = $this->scrapeService->scrapeCompanyInfo($request->getContent()['registration_code']);
             $this->companyRepo->addCompanyInfo($info);
 
             return $this->success_response(['message' => 'Company created'], 201);
@@ -72,24 +72,22 @@ class CompanyController extends AbstractController
         return $this->error_response('Company not found', Response::HTTP_NOT_FOUND);
     }
 
-    /**
-     * @Route("/api/companies/{id}", name="update_company", methods={"PUT"})
-     */
-    public function updateCompany(Request $request, Company $company): JsonResponse
+
+    #[Route('/api/company/{id}', name: 'app_company_update', methods: ['PUT', 'PATCH'])]
+    public function updateCompany(UpdateCompanyRequest $request, int $id): JsonResponse
     {
         try {
-            $data = json_decode($request->getContent(), true);
+            if ($company = $this->companyRepo->findOneBy(['id' => $id, 'deleted_at' => null])) {
+                $this->companyRepo->updateCompany($company, $request->getContent());
 
-            // Update entity properties based on incoming data
-            $company->setName($data['name']);
-            $company->setVat($data['vat']);
-            $company->setAddress($data['address']);
-            // ... other properties
+                return $this->success_response(['message' => 'Company updated']);
+            }
 
-            $this->getDoctrine()->getManager()->flush();
+            return $this->error_response('Company not found', Response::HTTP_NOT_FOUND);
 
-            return $this->success_response(['message' => 'Company updated']);
-        } catch (\Exception $ex) {
+        } catch (DBException $dbEx) {
+            return $this->error_response($dbEx->getMessage(), $dbEx->getStatusCode() ?? Response::HTTP_INTERNAL_SERVER_ERROR);
+        }  catch (\Exception $ex) {
             return $this->error_response('Failed to update company', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
