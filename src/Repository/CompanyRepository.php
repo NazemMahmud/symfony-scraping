@@ -6,6 +6,7 @@ use App\Entity\Company;
 use App\Exceptions\DBException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\Definition\Exception\DuplicateKeyException;
@@ -97,5 +98,21 @@ class CompanyRepository extends ServiceEntityRepository
 
             $this->getEntityManager()->persist($company);
             $this->getEntityManager()->flush();
+    }
+
+
+    public function getPaginatedData(int $page, int $pageSize): Paginator
+    {
+        $query =  $this->createQueryBuilder('c')
+            ->andWhere('c.deletedAt IS NULL')
+            ->orderBy('c.id', 'DESC')
+            ->getQuery();
+
+        $paginator = new Paginator($query);
+        $paginator->getQuery()
+            ->setFirstResult(($page - 1) * $pageSize)
+            ->setMaxResults($pageSize);
+
+        return $paginator;
     }
 }

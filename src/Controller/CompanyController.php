@@ -28,12 +28,18 @@ class CompanyController extends AbstractController
     )
     {}
 
-    #[Route('/company', name: 'app_company')]
-    public function index(): JsonResponse
+    #[Route('/api/companies', name: 'app_company_index', methods: ['GET'])]
+    public function index(Request $request): JsonResponse
     {
+        $queryParams = $request->query->all();
+        $page = $queryParams['page'] ?? 1;
+        $pageSize = $queryParams['perPage'] ?? 10;
+
+
         return $this->json([
             'message' => 'Welcome to your new controller!',
             'path' => 'src/Controller/CompanyController.php',
+            'data' => $queryParams
         ]);
     }
 
@@ -73,6 +79,15 @@ class CompanyController extends AbstractController
     }
 
 
+    /**
+     * Update a company info
+     * Check 1: company already exist or not, if not error
+     * Must Check 2: if registration code is already used for other company. Because, user can't use other company's code for themselves. The code is unique
+     *
+     * @param UpdateCompanyRequest $request
+     * @param int $id
+     * @return JsonResponse
+     */
     #[Route('/api/company/{id}', name: 'app_company_update', methods: ['PUT', 'PATCH'])]
     public function updateCompany(UpdateCompanyRequest $request, int $id): JsonResponse
     {
