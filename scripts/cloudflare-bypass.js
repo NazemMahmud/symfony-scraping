@@ -1,14 +1,12 @@
 const scrapePage = async (code) => {
 
-    const res = {
+    return {
         companyName: 'ABCD Company "title VŠĮ"',
         code: code,
         vat:  '987654321',
         address: 'Miško g. 25 Vilnius ',
         mobilePhone: 'https://rekvizitai.vz.lt/timages/%3DHGZ1VQAmVQV1NPZ3ZmX.gif',
     };
-
-    return res;
 }
 
 

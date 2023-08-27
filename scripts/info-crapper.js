@@ -1,10 +1,7 @@
 require('dotenv').config();
-// const fs = require('fs');
+
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-const fs = require("fs");
-const path = require("path");
-// const path = require("path");
 puppeteer.use(StealthPlugin());
 
 const username = process.env.SCRAPE_TOKEN;
@@ -17,31 +14,8 @@ let page = null;
 
 const customHeadersPost = {
     "authority": "rekvizitai.vz.lt",
-    //     "method": 'POST',
-    //     "path": "/en/company-search/1/",
-    //     "scheme": "https",
-    //     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-    //     "Origin": "https://rekvizitai.vz.lt",
-    //     "Referer": "https://rekvizitai.vz.lt/en/company-search/1/"
 };
 
-
-
-const writeFile = async (templateDir, filePath, text) => {
-    // Make sure the template directory exists before writing the file
-    if (!fs.existsSync(templateDir)) {
-        fs.mkdirSync(templateDir, { recursive: true });
-    }
-
-    fs.writeFile(filePath, text, function (writeError) {
-        if (writeError) {
-            console.error("Error writing to file:", writeError);
-        } else {
-            console.log("*************-------------------*********************");
-            console.log("Response body saved to response.html");
-        }
-    });
-}
 
 /**
  * Set the browser value initially to use it all places
@@ -84,9 +58,6 @@ const formSubmit = async (code) => {
 
     // Wait for navigation to the page after form submission
     await page.waitForNavigation({ waitUntil: 'networkidle2' });
-
-    // Get the content of the loaded page
-    // const loadedPageContent = await
     return page.content();
 };
 
@@ -98,7 +69,6 @@ const getDetailsPage = async (html) => {
     const linkRegex = /<a class="company-title d-block" href="([^"]+)"/;
     const match = html.match(linkRegex);
 
-    console.log('Match values: ', match);
     if (match && match[1]) {
         const link = match[1];
         const newURL = link.startsWith('https://') ? link : `${mainURL}${link}`;
@@ -106,14 +76,14 @@ const getDetailsPage = async (html) => {
         // Open a new page and navigate to the extracted link
         const newPage = await browser.newPage();
         await newPage.goto(newURL, { waitUntil: 'networkidle2' });
+        await newPage.waitForSelector('h1.title');
+        await newPage.content();
 
-        // Get the content of the new page
-        const newPageContent = await newPage.content();
+        const data = await getData(newPage);
 
-        // Close the new page
         await newPage.close();
 
-        return newPageContent;
+        return data;
     }
 
     return null;
@@ -129,30 +99,18 @@ const getDetailsPage = async (html) => {
  * 5. Scrape 3: Redirect to the detail page, Store the data into an array, return that in PHP Service
  */
 
-const scrapePage = async (code) => {
-    console.log('token: ', username);
-    console.log('pass: ', password);
-    console.log('url: ', mainURL);
-
+const scrapePage = async code => {
     // Scrape 1: scrape the main page
     await setBrowser();
     await setPageWithProxy();
-    const res = await page.content();
-
-    console.log(res);
-    console.log('-----------------------------------------------------------------------------------');
+    await page.content();
 
     const loadContent = await formSubmit(code);
 
     // Scrape 3: Extract link and scrape
     const linkedPageContent = await getDetailsPage(loadContent);
 
-    // Close the browser when done
     await browser.close();
-
-    const templateDir = path.join(__dirname, '../template');
-    const responseFilePath = path.join(templateDir, 'response.html');
-    await writeFile(templateDir, responseFilePath, linkedPageContent);
 
     return linkedPageContent;
 }
@@ -161,25 +119,9 @@ const scrapePage = async (code) => {
  * Get Company name, VAT, Address & Mobile Phone
  * @returns {Promise<Awaited<ReturnType<function(): {companyName: string, vat: string, address: string, mobilePhone: string}>>>}
  */
-const getData = async () => {
+const getData = async detailsPage => {
     try {
-        /**
-         * TODO: remove browser & page, these are already found from scrapped data
-         * remove file actions, I am going to read data from scrape content
-         *
-         */
-        browser = await puppeteer.launch({ headless: 'new',  args: ['--no-sandbox'] });
-        page = await browser.newPage();
-
-        const templateDir = path.join(__dirname, '../template');
-        const responseFilePath = path.join(templateDir, 'response.html');
-        const linkedPageContent = fs.readFileSync(responseFilePath, 'utf8');
-        await page.setContent(linkedPageContent);
-
-        // from here everything will be copied
-        await page.waitForSelector('h1.title');
-
-        const companyDetails = await page.evaluate(() => {
+        const companyDetails = await detailsPage.evaluate(() => {
             const details = {};
             const companyName = document.querySelector('h1.title')?.textContent.trim() || '';
 
@@ -197,7 +139,8 @@ const getData = async () => {
             }
 
             let rows = document.querySelectorAll('.details-block__2 tr');
-            let count = 0;
+            let foundPhone = false;
+            let foundAddress = false;
             for (const row of rows) {
                 const nameCell = row.querySelector('td.name');
                 if (nameCell) {
@@ -206,21 +149,21 @@ const getData = async () => {
                         const valueCell = nameCell.nextElementSibling;
                         if (valueCell && valueCell.classList.contains('value')) {
                             details.address = valueCell.textContent.trim();
-                            count++;
+                            foundAddress = true;
                         }
-                    } else if (name === 'Mobile phone' || name === 'Phone') {
+                    } else if (foundAddress && name.toLowerCase().includes('phone')) {
                         const valueCell = nameCell.nextElementSibling;
                         if (valueCell && valueCell.classList.contains('value')) {
                             const img = valueCell.querySelector('img');
                             if (img) {
                                 const mobilePhoneSrc = img.getAttribute('src');
-                                details.mobilePhone = mobilePhoneSrc.startsWith('http') ? mobilePhoneSrc : `https://xyz.com/${mobilePhoneSrc}`;
-                                count++;
+                                details.mobilePhone = mobilePhoneSrc.startsWith('http') ? mobilePhoneSrc : `https://rekvizitai.vz.lt${mobilePhoneSrc}`;
+                                foundPhone = true
                             }
                         }
                     }
 
-                    if (count > 1) break;
+                    if (foundPhone && foundAddress) break;
                 }
             }
 
@@ -229,23 +172,18 @@ const getData = async () => {
                 ...details
             };
         });
-
         return companyDetails;
     } catch (err) {
-        console.error('Error:', err);
+       return null;
     }
 }
 
 (async () => {
-
+    const registrationCode = process.argv[2];
     // const res = await scrapePage('302801462');
-    const res = await getData();
-    console.log(res);
+    // const res = await scrapePage('301108117');
+    const res = await scrapePage(registrationCode);
 
-    if (res) {
-        console.log("Success.............. ")
-    } else {
-        console.error("Not Right.............. ")
-    }
+    console.log(res);
 
 })();

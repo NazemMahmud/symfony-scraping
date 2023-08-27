@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-//use Exception;
+
 use App\Exceptions\ScrapeException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -10,6 +10,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ScrapeService
 {
+    private const SCRAPPER_FILE = 'scripts/info-crapper.js';
+
     /**
      * @param string $registrationCode
      * @throws  BadRequestHttpException|ScrapeException
@@ -22,7 +24,7 @@ class ScrapeService
         }
 
         $escapedRegistrationCode = escapeshellarg($registrationCode);
-        $puppeteerScriptPath = __DIR__ . '/../../scripts/cloudflare-bypass.js';
+        $puppeteerScriptPath = __DIR__ . '/../../' . self::SCRAPPER_FILE;
         exec("node $puppeteerScriptPath $escapedRegistrationCode 2>&1", $output, $returnCode);
 
         $output = implode("\n", $output);
