@@ -4,6 +4,7 @@ namespace App\Services;
 
 
 use App\Exceptions\ScrapeException;
+use Predis\Client;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 
@@ -40,6 +41,20 @@ class ScrapeService
 
         throw new ScrapeException(message:  $output ?: 'Data not found.');
 
+    }
+
+    /**
+     * Check for index API, if already paginated data for a given range called before, such page=1, pageSize=10
+     * So, that for similar data no need to call db query
+     *
+     * @param CacheService $client
+     * @param int $page
+     * @param int $pageSize
+     * @return bool
+     */
+    public function checkCache(CacheService $client, int $page, int $pageSize): bool
+    {
+        return $page == $client->getData('page') && $pageSize == $client->getData('perPage');
     }
 
 }

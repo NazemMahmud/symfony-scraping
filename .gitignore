@@ -23,5 +23,6 @@ storage/logs/*
 docker-compose.yml
 docker-compose.override.*
 docker-conf/mysql/*
+docker-conf/redis_data/*
 
 node_modules

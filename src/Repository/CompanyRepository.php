@@ -25,13 +25,11 @@ class CompanyRepository extends ServiceEntityRepository
      * @param array $data
      * @return Company
      * @throws DBException
-     * @return \Exception
+     * @throws \Exception
      */
     public function addCompanyInfo(array $data): Company
     {
         try {
-            $this->checkDuplicate($data['code']);
-
             $company = new Company();
             $company->setName($data['companyName']);
             $company->setRegiCode($data['code']);
@@ -49,20 +47,6 @@ class CompanyRepository extends ServiceEntityRepository
         }
 
         return $company;
-    }
-
-    /**
-     * Check for unique registration_code entry
-     *
-     * @param string $registrationCode
-     * @return void
-     * @throws DuplicateKeyException
-     */
-    private function checkDuplicate(string $registrationCode): void
-    {
-        if ($this->findOneBy(['regi_code' => $registrationCode])) {
-            throw new DuplicateKeyException('The registration code is already in use.', Response::HTTP_CONFLICT);
-        }
     }
 
     /**

@@ -3,20 +3,23 @@
 namespace App\Controller;
 
 
+use App\Exceptions\DBException;
+use App\Exceptions\ScrapeException;
 use App\Requests\NewCompanyRequest;
 use App\Requests\UpdateCompanyRequest;
+use App\Services\CacheService;
 use App\Services\ScrapeService;
 use App\Traits\HttpResponse;
+use App\Repository\CompanyRepository;
+use Exception;
+use Snc\RedisBundle\Client\Predis;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use App\Exceptions\DBException;
-use App\Exceptions\ScrapeException;
-use Exception;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
-use App\Repository\CompanyRepository;
+
 
 class CompanyController extends AbstractController
 {
@@ -24,11 +27,13 @@ class CompanyController extends AbstractController
 
     public function __construct(
         protected ScrapeService $scrapeService,
-        protected CompanyRepository $companyRepo
+        protected CompanyRepository $companyRepo,
+        protected CacheService $cache
     )
     {}
 
     /**
+     * api URL sample: {BASE_URL}/api/companies?page=2&perPage=7
      * for pagination optional parameters: page => to define data range, perPage => max number of data return
      *
      * @param Request $request
@@ -40,6 +45,11 @@ class CompanyController extends AbstractController
         $queryParams = $request->query->all();
         $page = $queryParams['page'] ?? 1;
         $pageSize = $queryParams['perPage'] ?? 10;
+
+        if ($this->scrapeService->checkCache( $this->cache, $page, $pageSize) ) {
+            return $this->success_response(['data' => json_decode($this->cache->getData('company')), 'from' => 'cache']);
+        }
+
         $paginator = $this->companyRepo->getPaginatedData($page, $pageSize);
 
         if ($paginator->count()) {
@@ -66,6 +76,7 @@ class CompanyController extends AbstractController
                 ],
             ];
 
+            $this->cache->cacheValues(['page' => $page, 'perPage' => $pageSize, 'company' => json_encode($data)]);
             return $this->success_response(['data' =>$data]);
         }
 
@@ -73,17 +84,25 @@ class CompanyController extends AbstractController
     }
 
     /**
+     * if code exist in redis, then it is already stored, no need to scrape again, DB query for checking duplicate is reduced
+     *
      * @param NewCompanyRequest $request
      * @return JsonResponse
      */
     #[Route('/api/company/new', name: 'app_company_store', methods: ['POST'])]
     public function store(NewCompanyRequest $request): JsonResponse
     {
+        $code = $request->getContent()['registration_code'];
+
         try {
-            // todo: check it
+            if (in_array($code, $this->cache->getList( 'registration_codes'))) {
+                throw new Exception('This code is already stored.', Response::HTTP_BAD_REQUEST);
+            }
+
             $info = $this->scrapeService->scrapeCompanyInfo($request->getContent()['registration_code']);
             $this->companyRepo->addCompanyInfo($info);
 
+            $this->cache->cacheList( 'registration_codes', $code);
             return $this->success_response(['message' => 'Company created'], 201);
         } catch (BadRequestHttpException $badReqEx) {
             return $this->error_response($badReqEx->getMessage(), $badReqEx->getStatusCode() ?? Response::HTTP_BAD_REQUEST);
@@ -92,9 +111,10 @@ class CompanyController extends AbstractController
         } catch (DBException $dbEx) {
             return $this->error_response($dbEx->getMessage(), $dbEx->getStatusCode() ?? Response::HTTP_INTERNAL_SERVER_ERROR);
         }  catch (Exception $ex) {
-            return $this->error_response($ex->getMessage(), $ex->getStatusCode() ?? Response::HTTP_NOT_FOUND);
+            return $this->error_response($ex->getMessage(), $ex->getCode() ?? Response::HTTP_NOT_FOUND);
         }
     }
+
 
     #[Route('/api/company/{id}', name: 'app_company_delete', methods: ['DELETE'])]
     public function deleteCompany(int $id): JsonResponse
