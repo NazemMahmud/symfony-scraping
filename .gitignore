@@ -15,14 +15,14 @@ config/secrets/prod/prod.decrypt.private.php
 public/bundles/
 var/
 vendor/
+node_modules
 
 # storage
 storage/logs/*
 
-
+# local docker configs
 docker-compose.yml
 docker-compose.override.*
 docker-conf/mysql/*
-docker-conf/redis_data/*
 
-node_modules
+

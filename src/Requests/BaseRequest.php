@@ -33,7 +33,7 @@ class BaseRequest
         }
 
         if (count($messages)) {
-            $response = $this->error_response($messages['errors'], Response::HTTP_FORBIDDEN);
+            $response = $this->error_response($messages, Response::HTTP_FORBIDDEN);
             $response->send();
         }
     }

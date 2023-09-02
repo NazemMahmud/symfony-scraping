@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ScrapeService
 {
-    private const SCRAPPER_FILE = 'scripts/info-crapper.js';
+    private const SCRAPPER_FILE = 'scripts/info-scrapper.js';
 
     /**
      * @param string $registrationCode

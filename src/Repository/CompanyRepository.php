@@ -73,7 +73,9 @@ class CompanyRepository extends ServiceEntityRepository
             $criteria = new Criteria();
             $criteria->where(Criteria::expr()->eq('regi_code', $data['registration_code']));
             $criteria->andWhere(Criteria::expr()->neq('id',  $company->getId()));
-            if($this->matching($criteria)) {
+            $matching = $this->matching($criteria);
+
+            if(!$matching->isEmpty()) {
                 throw new DBException( Response::HTTP_CONFLICT, 'The registration code is already in use.',);
             }
 
