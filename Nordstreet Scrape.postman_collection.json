@@ -1,0 +1,711 @@
+{
+	"info": {
+		"_postman_id": "30d82a7a-780e-4005-89f2-af2872d1a410",
+		"name": "Nordstreet Scrape",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1449184"
+	},
+	"item": [
+		{
+			"name": "Create New Company",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"registration_code\": \"\" \r\n}"
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/api/company/new",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"company",
+						"new"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Error: Service Empty code",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"registration_code\": \"302801462\" \r\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/company/new",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"company",
+								"new"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Server",
+							"value": "nginx/1.20.2"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 23 Aug 2023 17:12:25 GMT"
+						},
+						{
+							"key": "X-Robots-Tag",
+							"value": "noindex"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": false,\n    \"message\": [\n        \"The registration code cannot be blank.\"\n    ]\n}"
+				},
+				{
+					"name": "Success: Create New Company",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"registration_code\": \"302801462\" \r\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/company/new",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"company",
+								"new"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Server",
+							"value": "nginx/1.20.2"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 23 Aug 2023 20:01:19 GMT"
+						},
+						{
+							"key": "X-Robots-Tag",
+							"value": "noindex"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": true,\n    \"message\": \"Company created\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Get: All Companies",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/api/companies?page=2&perPage=7",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"companies"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "2"
+						},
+						{
+							"key": "perPage",
+							"value": "7"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get: All Companies (Pagination)",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/companies?page=2&perPage=7",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"companies"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "2"
+								},
+								{
+									"key": "perPage",
+									"value": "7"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Server",
+							"value": "nginx/1.20.2"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 02 Sep 2023 06:09:26 GMT"
+						},
+						{
+							"key": "X-Robots-Tag",
+							"value": "noindex"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": true,\n    \"data\": {\n        \"items\": [\n            {\n                \"id\": 8,\n                \"name\": \"ZXCV Company\",\n                \"registration_code\": \"987654322\",\n                \"vat\": \"302801468\",\n                \"address\": \"Test Address\",\n                \"mobile_phone\": \"https://rekvizitai.vz.lt/timages/%3DHGZ1VQAmVQV1NPZ3ZmX.gif\"\n            },\n            {\n                \"id\": 7,\n                \"name\": \"DEF Company \\\"title VŠĮ\\\"\",\n                \"registration_code\": \"302801467\",\n                \"vat\": \"987654321\",\n                \"address\": \"Miško g. 25 Vilnius \",\n                \"mobile_phone\": \"https://rekvizitai.vz.lt/timages/%3DHGZ1VQAmVQV1NPZ3ZmX.gif\"\n            },\n            {\n                \"id\": 6,\n                \"name\": \"ABCD Company \\\"title VŠĮ\\\"\",\n                \"registration_code\": \"302801466\",\n                \"vat\": \"987654321\",\n                \"address\": \"Miško g. 25 Vilnius \",\n                \"mobile_phone\": \"https://rekvizitai.vz.lt/timages/%3DHGZ1VQAmVQV1NPZ3ZmX.gif\"\n            },\n            {\n                \"id\": 3,\n                \"name\": \"ABCD Company\",\n                \"registration_code\": \"302801463\",\n                \"vat\": \"987654322\",\n                \"address\": \"Test Address\",\n                \"mobile_phone\": \"https://rekvizitai.vz.lt/timages/%3DHGZ1VQAmVQV1NPZ3ZmX.gif\"\n            },\n            {\n                \"id\": 2,\n                \"name\": \"ABCD Company \\\"title VŠĮ\\\"\",\n                \"registration_code\": \"302801462\",\n                \"vat\": \"987654321\",\n                \"address\": \"Miško g. 25 Vilnius \",\n                \"mobile_phone\": \"https://rekvizitai.vz.lt/timages/%3DHGZ1VQAmVQV1NPZ3ZmX.gif\"\n            },\n            {\n                \"id\": 1,\n                \"name\": \"ABCD Company \\\"title VŠĮ\\\"\",\n                \"registration_code\": \"302801461\",\n                \"vat\": \"987654321\",\n                \"address\": \"Miško g. 25 Vilnius \",\n                \"mobile_phone\": \"https://rekvizitai.vz.lt/timages/%3DHGZ1VQAmVQV1NPZ3ZmX.gif\"\n            }\n        ],\n        \"pagination\": {\n            \"total_items\": 13,\n            \"current_page\": 2,\n            \"last_page\": 2,\n            \"has_previous_page\": true,\n            \"has_next_page\": false\n        }\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "Update A Company",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"registration_code\": \"302801463\",\r\n    \"vat\": \"987654321\",\r\n    \"name\": \"ABCD Company\",\r\n    \"address\": \"Test Address\",\r\n    \"mobile_phone\": \"https://rekvizitai.vz.lt/timages/%3DHGZ1VQAmVQV1NPZ3ZmX.gif\"\r\n}"
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/api/company/3",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"company",
+						"3"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success: Update A Company",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"registration_code\": \"302801463\",\r\n    \"vat\": \"987654321\",\r\n    \"name\": \"ABCD Company\",\r\n    \"address\": \"Test Address\",\r\n    \"mobile_phone\": \"https://rekvizitai.vz.lt/timages/%3DHGZ1VQAmVQV1NPZ3ZmX.gif\"\r\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/company/3",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"company",
+								"3"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Server",
+							"value": "nginx/1.20.2"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 23 Aug 2023 20:01:19 GMT"
+						},
+						{
+							"key": "X-Robots-Tag",
+							"value": "noindex"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": true,\n    \"message\": \"Company updated\"\n}"
+				},
+				{
+					"name": "Error: Update Validation Rule",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"registration_code\": \"302801465\",\r\n    \"vat\": 2324242,\r\n    \"name\": \"sada\",\r\n    \"address\": \"302801465\",\r\n    \"mobile_phone\": \"\"\r\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/company/3",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"company",
+								"3"
+							]
+						}
+					},
+					"status": "Forbidden",
+					"code": 403,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Server",
+							"value": "nginx/1.20.2"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 26 Aug 2023 04:00:57 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": false,\n    \"message\": [\n        \"The vat must be a string.\",\n        \"The mobile phone cannot be blank.\"\n    ]\n}"
+				},
+				{
+					"name": "Error: Registration code conflict",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"registration_code\": \"302801465\",\r\n    \"vat\": \"987654322\",\r\n    \"name\": \"ABCD Company\",\r\n    \"address\": \"Test Address\",\r\n    \"mobile_phone\": \"https://rekvizitai.vz.lt/timages/%3DHGZ1VQAmVQV1NPZ3ZmX.gif\"\r\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/company/3",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"company",
+								"3"
+							]
+						}
+					},
+					"status": "Conflict",
+					"code": 409,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Server",
+							"value": "nginx/1.20.2"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 26 Aug 2023 05:08:04 GMT"
+						},
+						{
+							"key": "X-Robots-Tag",
+							"value": "noindex"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": false,\n    \"message\": \"The registration code is already in use.\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Delete A Company",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/api/company/15",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"company",
+						"15"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Error: Company not found (already deleted or ID not available)",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"registration_code\": \"302801462\" \r\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/company/4",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"company",
+								"4"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Server",
+							"value": "nginx/1.20.2"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 23 Aug 2023 17:12:25 GMT"
+						},
+						{
+							"key": "X-Robots-Tag",
+							"value": "noindex"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": false,\n    \"message\": \"Company not found\"\n}"
+				},
+				{
+					"name": "Success: Delete A Company",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"registration_code\": \"302801465\" \r\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/company/15",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"company",
+								"15"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Server",
+							"value": "nginx/1.20.2"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, private"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 26 Aug 2023 03:47:37 GMT"
+						},
+						{
+							"key": "X-Robots-Tag",
+							"value": "noindex"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": true,\n    \"message\": \"Company successfully deleted\"\n}"
+				}
+			]
+		}
+	]
+}

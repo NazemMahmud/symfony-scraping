@@ -1,5 +1,5 @@
 {
-  "name": "practice",
+  "name": "puppeteer-scrape",
   "version": "1.0.0",
   "description": "web scrapping",
   "main": "index.js",
@@ -11,7 +11,7 @@
     "url": "git+https://github.com/NazemMahmud/nordstreet-practice.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Nazem Mahmud Piash",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/NazemMahmud/nordstreet-practice/issues"

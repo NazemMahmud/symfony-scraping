@@ -2,6 +2,8 @@
 
 - [Installation](#installation)
 - [APIs / Postman Collection](#apis--postman-collection)
+  - [Documentation](#Documentation)
+  - [Collection](#Collection)
 - [Implementation](#implementation)
    - [Docker Environment Setup](#docker-environment-setup)
    - [Scrapper Implementation](#scrapper-implementation)
@@ -29,9 +31,15 @@ After pulling from the repository
 
 
 # APIS / POSTMAN COLLECTION:
+
+## Documentation
 There are 4 APIs. This is postman collection link: https://documenter.getpostman.com/view/1449184/2s9Y5cu1WN 
 
 Use it to understand the APIs in details.
+
+## Collection
+- This is the json file of the postman collection:  **Nordstreet Scrape.postman_collection.json** You can find it in the root directory
+
 
 # Implementation
 1. Docker environment setup is done for Nginx, PHP 8.2, MySQL 8 & Redis

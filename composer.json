@@ -1,6 +1,12 @@
 {
     "type": "project",
     "license": "proprietary",
+    "authors": [
+        {
+            "name": "Nazem Mahmud Piash",
+            "email": "nazem.piash10@gmail.com"
+        }
+    ],
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
