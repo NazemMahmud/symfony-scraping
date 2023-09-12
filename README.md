@@ -1,6 +1,8 @@
+# [UPDATED: CORS POLICY](#cors)
 # Table of Contents
 
 - [Installation](#installation)
+- [CORS](#cors)
 - [APIs / Postman Collection](#apis--postman-collection)
   - [Documentation](#Documentation)
   - [Collection](#Collection)
@@ -29,6 +31,12 @@ After pulling from the repository
   - To install composer packages, run command: `composer install`
   - To install npm packages, run command: `npm install`
 
+# CORS
+- Run `composer install` to install the package for cors control.
+- For this backend, allow CORS origin from specific site. \
+You can see this in `.env.example` file. The variable for this is: `CORS_ALLOW_ORIGIN=` \
+Update it in `.env` if you feel necessary.
+- Then clear the cache: `php bin/console cache:clear`
 
 # APIS / POSTMAN COLLECTION:
 

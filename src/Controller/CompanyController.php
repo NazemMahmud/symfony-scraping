@@ -47,7 +47,7 @@ class CompanyController extends AbstractController
         $pageSize = $queryParams['perPage'] ?? 10;
 
         if ($this->scrapeService->checkCache( $this->cache, $page, $pageSize) ) {
-            return $this->success_response(['data' => json_decode($this->cache->getData('company')), 'from' => 'cache']);
+            return $this->success_response(['data' => json_decode($this->cache->getData('company'))]);
         }
 
         $paginator = $this->companyRepo->getPaginatedData($page, $pageSize);
