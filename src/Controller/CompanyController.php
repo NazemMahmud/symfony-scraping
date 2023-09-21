@@ -103,7 +103,12 @@ class CompanyController extends AbstractController
             $this->companyRepo->addCompanyInfo($info);
 
             $this->cache->cacheList( 'registration_codes', $code);
-            return $this->success_response(['message' => 'Company created'], 201);
+            $this->cache->deleteData( 'page');
+            return $this->success_response([
+                'message' => 'Company created',
+                'data' => $this->companyRepo->getLatestData($code)
+            ], 201);
+
         } catch (BadRequestHttpException $badReqEx) {
             return $this->error_response($badReqEx->getMessage(), $badReqEx->getStatusCode() ?? Response::HTTP_BAD_REQUEST);
         } catch (ScrapeException $scrapeEx) {

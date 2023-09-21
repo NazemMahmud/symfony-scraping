@@ -91,8 +91,7 @@ class CompanyRepository extends ServiceEntityRepository
 
 
     /**
-     * Pagination & filtering
-     * TODO: filtering
+     * Pagination
      *
      * @param int $page
      * @param int $pageSize
@@ -111,5 +110,28 @@ class CompanyRepository extends ServiceEntityRepository
             ->setMaxResults($pageSize);
 
         return $paginator;
+    }
+
+    /**
+     * Get latest single data
+     *
+     * @param string $code
+     * @return array
+     */
+    public function getLatestData(string $code): array
+    {
+        $data =  $this->getEntityManager()
+            ->getRepository($this->getClassName())
+            ->findOneBy(['regi_code' => $code]);
+
+        return !empty($data) ?
+            [
+                'id' => $data->getId(),
+                'name' => $data->getName(),
+                'registration_code' => $code,
+                'vat' => $data->getVat(),
+                'address' => $data->getAddress(),
+                'mobile_phone' => $data->getMobilePhone(),
+            ] : [];
     }
 }
