@@ -121,6 +121,8 @@ class CompanyController extends AbstractController
     {
         if ($company = $this->companyRepo->findOneBy(['id' => $id, 'deleted_at' => null])) {
             $this->companyRepo->deleteCompany($company);
+            $this->cache->deleteData('page');
+
             return $this->success_response(['message' => 'Company successfully deleted']);
         }
 
@@ -143,6 +145,7 @@ class CompanyController extends AbstractController
         try {
             if ($company = $this->companyRepo->findOneBy(['id' => $id, 'deleted_at' => null])) {
                 $this->companyRepo->updateCompany($company, $request->getContent());
+                $this->cache->deleteData('page');
 
                 return $this->success_response(['message' => 'Company updated']);
             }

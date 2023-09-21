@@ -13,6 +13,10 @@ services:
     depends_on:
       - php-service
       - mysql-service
+      - phpmyadmin
+      - redis
+    networks:
+      - scrape_api_docker
 
   php-service:
     build:
@@ -26,6 +30,9 @@ services:
       - ./docker-conf/php/php.ini:/usr/local/etc/php/php.ini:rw
     depends_on:
       - mysql-service
+      - redis
+    networks:
+      - scrape_api_docker
 
   mysql-service:
     image: mysql:8.0
@@ -39,6 +46,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
+    networks:
+      - scrape_api_docker
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -49,7 +58,25 @@ services:
       PMA_PASSWORD: ${DB_PASSWORD}
     ports:
       - "8188:80"
-  #      networks:
+    networks:
+      - scrape_api_docker
+
+  redis:
+    image: 'redis:alpine'
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    volumes:
+      - ${REDIS_PATH}:/data
+    networks:
+      -  scrape_api_docker
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      retries: 3
+      timeout: 5s
+
+networks:
+  scrape_api_docker:
+    driver: "bridge"
 
 volumes:
   dbdata:

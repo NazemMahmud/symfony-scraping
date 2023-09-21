@@ -6,8 +6,8 @@ RUN apk update && apk add --no-cache \
      zlib-dev g++ git icu-dev libzip-dev libpng-dev libjpeg-turbo-dev zip unzip libpq-dev wget gnupg bash udev openssl  \
     && docker-php-ext-install intl opcache pdo mysqli pdo_mysql zip gd \
     && docker-php-ext-configure gd --with-jpeg \
-    && pecl install apcu \
-    && docker-php-ext-enable apcu \
+    && pecl install apcu redis \
+    && docker-php-ext-enable apcu redis \
     && docker-php-ext-enable pdo_mysql \
     && docker-php-ext-configure zip
 

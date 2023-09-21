@@ -58,4 +58,15 @@ class CacheService
     {
         return $this->client->get($key);
     }
+
+    /**
+     * Delete a key from redis cache
+     *
+     * @param string $key
+     * @return void
+     */
+    public function deleteData(string $key): void
+    {
+        $this->client->del($key);
+    }
 }
