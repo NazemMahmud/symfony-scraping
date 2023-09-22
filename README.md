@@ -1,6 +1,10 @@
-# [UPDATED: CORS POLICY & Redis Docker](#updated)
-# Table of Contents
+# [UPDATED: CORS, Docker Redis & Unit test](#updated)
+- [CORS](#cors)
+- [Redis in Docker](#redis-in-docker)
+- [Unit test](#unit-test)
+- [Updated Installation](#updated-installation)
 
+# Table of Contents
 - [Installation](#installation)
 - [CORS](#cors)
 - [APIs / Postman Collection](#apis--postman-collection)
@@ -30,23 +34,6 @@ After pulling from the repository
 - **Inside the container:** 
   - To install composer packages, run command: `composer install`
   - To install npm packages, run command: `npm install`
-
-# [UPDATED]
-If you don't have this updated code, please update, 
-
-And also, check the env file for the update, in case you missed.
-
-## CORS
-- Run `composer install` to install the package for cors control.
-- For this backend, allow CORS origin from specific site. \
-You can see this in `.env.example` file. The variable for this is: `CORS_ALLOW_ORIGIN=` \
-Update it in `.env` if you feel necessary.
-- Then clear the cache: `php bin/console cache:clear`
-
-
-## Redis in Docker
-- updated docker compose and dockerfile for redis setup
-
 
 # APIS / POSTMAN COLLECTION:
 
@@ -106,3 +93,44 @@ For this, **clear cache**:
 php bin/console cache:clear
 ```
 
+
+# [UPDATED]
+If you don't have this updated code, please update,
+
+And also, check the env file for the update, in case you missed.
+
+## CORS
+- Run `composer install` to install the package for cors control.
+- For this backend, allow CORS origin from specific site. \
+  You can see this in `.env.example` file. The variable for this is: `CORS_ALLOW_ORIGIN=` \
+  Update it in `.env` if you feel necessary.
+- Then clear the cache: `php bin/console cache:clear`
+
+
+## Redis in Docker
+- updated docker compose and dockerfile for redis setup
+
+## Unit test
+- Latest phpunit package has conflict with latest symfony version. So, phpunit package is downgraded for this
+
+
+# Updated Installation
+- The dockerfile is updated, so build the docker file again.
+```shell
+docker compose build --no-cache
+```
+
+- Then run: `docker compose up -d`
+
+- new package is installed for this, you have to run `composer install` or `composer update` command again to install the new packages.
+```shell
+docker compose exec php-service bash
+```
+```shell
+composer install # or run, composer update
+```
+
+- **After installing everything run a cache clear command, because many things are updated now**
+```shell
+php bin/console cache:clear
+```
