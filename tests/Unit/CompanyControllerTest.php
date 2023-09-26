@@ -6,7 +6,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-// Todo: unit test
 class CompanyControllerTest extends WebTestCase
 {
 
@@ -25,7 +24,6 @@ class CompanyControllerTest extends WebTestCase
 
     public function testUpdateCompanyConflict(): void
     {
-
         $id = 1;
         $requestData = [
             'registration_code' => '302801468',
@@ -44,25 +42,46 @@ class CompanyControllerTest extends WebTestCase
                 'json' => $requestData,
             ]);
             $statusCode = $response->getStatusCode();
-            $responseBody = $response->getBody()->getContents();
-
-//        $requestUrl = $client->getRequest()->getUri();
-//        $response = $client->getResponse();
-//        dump($client->getResponse());
-
             $this->assertSame(200, $statusCode);
 
         } catch (ClientException $ex) {
             $statusCode = $ex->getResponse()->getStatusCode();
-
-            // You can use the status code for assertions or other purposes
             $this->assertSame(409, $statusCode);
 
-            // Display the response body for 409 error
             $responseBody = json_decode($ex->getResponse()->getBody()->getContents(), true);
             $this->assertFalse($responseBody['success']);
             $this->assertSame('The registration code is already in use.', $responseBody['message']);
             $this->assertSame(409, $statusCode);
+        }
+    }
+
+    public function testUpdateCompanyValidationError(): void
+    {
+        $id = 1;
+        $requestData = [
+            'registration_code' => '302801468',
+        ];
+
+        try {
+            $response = $this->client->request('PUT', '/api/company/' . $id, [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => $requestData,
+            ]);
+            $statusCode = $response->getStatusCode();
+            $this->assertSame(200, $statusCode);
+
+        } catch (ClientException $ex) {
+            $statusCode = $ex->getResponse()->getStatusCode();
+            $this->assertSame(403, $statusCode);
+
+            $responseBody = json_decode($ex->getResponse()->getBody()->getContents(), true);
+            $this->assertFalse($responseBody['success']);
+            $this->assertIsArray($responseBody['message']);
+
+            $expectedString = 'The vat cannot be blank.';
+            $this->assertContains($expectedString, $responseBody['message']);
         }
     }
 }
