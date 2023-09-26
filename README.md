@@ -112,11 +112,22 @@ And also, check the env file for the update, in case you missed.
 
 ## Unit test
 - Latest phpunit package has conflict with latest symfony version. So, phpunit package is downgraded for this
+- To run unit test, run command from inside docker container:
+```shell
+php bin/phpunit
+```
+- If you want to see each individual test case result, run command:
+```shell
+php bin/phpunit --testdox
+```
 
 ### Note on Unit Test
 - Faced API calling using WebTestCase class. So, instead, used guzzle client.
 - The variable value `TEST_BASE_URL` in `.env.test` file used the nginx service name because of docker container. 
 If you want to use the project directly then, you may use localhost
+- **The proper way** should be, create a mock db so that it does not affect the real DB. But for this time being, I hit the main DB to test.
+- 6 unit test cases are written. One of them is written as to be failed purposely. So, 5 test cases pass, 1 get failure.
+
 
 # Updated Installation
 - The dockerfile is updated, so build the docker file again.
