@@ -69,10 +69,6 @@ Use it to understand the APIs in details.
 - **Log:** customized log handler for the error log, inside the project directory for error response. It helps to identify each error properly. Every day a new file (named with the datetime) will generate when the error occurs.
 - **Added indexing** for column registration code
 
-# Remaining tasks:
-- RabbitMQ: I can implement it if extra time is provided.
-- I skipped the additional task for now.
-
 
 # NOTE:
 
