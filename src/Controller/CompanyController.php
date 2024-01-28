@@ -140,10 +140,11 @@ class CompanyController extends AbstractController
     #[Route('/api/company/{id}', name: 'app_company_update', methods: ['PUT', 'PATCH'])]
     public function updateCompany(UpdateCompanyRequest $request, int $id): JsonResponse
     {
+        // todo: when update clear redis
         try {
             if ($company = $this->companyRepo->findOneBy(['id' => $id, 'deleted_at' => null])) {
                 $this->companyRepo->updateCompany($company, $request->getContent());
-
+                $this->cache->deleteList(['page', 'perPage', 'company']);
                 return $this->success_response(['message' => 'Company updated']);
             }
 

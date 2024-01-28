@@ -58,4 +58,9 @@ class CacheService
     {
         return $this->client->get($key);
     }
+
+    public function deleteList(array $key): void
+    {
+        $this->client->del($key);
+    }
 }
