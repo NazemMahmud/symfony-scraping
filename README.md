@@ -1,6 +1,10 @@
-# [UPDATED: CORS POLICY](#cors)
-# Table of Contents
+# [UPDATED: CORS, Docker Redis & Unit test](#updated)
+- [Updated Installation](#updated-installation)
+- [CORS](#cors)
+- [Redis in Docker](#redis-in-docker)
+- [Unit test](#unit-test)
 
+# Table of Contents
 - [Installation](#installation)
 - [CORS](#cors)
 - [APIs / Postman Collection](#apis--postman-collection)
@@ -31,13 +35,6 @@ After pulling from the repository
   - To install composer packages, run command: `composer install`
   - To install npm packages, run command: `npm install`
 
-# CORS
-- Run `composer install` to install the package for cors control.
-- For this backend, allow CORS origin from specific site. \
-You can see this in `.env.example` file. The variable for this is: `CORS_ALLOW_ORIGIN=` \
-Update it in `.env` if you feel necessary.
-- Then clear the cache: `php bin/console cache:clear`
-
 # APIS / POSTMAN COLLECTION:
 
 ## Documentation
@@ -64,17 +61,13 @@ Use it to understand the APIs in details.
    3. Update:
       1. Checked if the registration code is already exist in another row in DB. Because codes are unique. So, no 2 rows will have same code.
    4. Delete: If ID exist in the DB, then soft delete mechanism is used so that no data is completely removed, but only updated the deleted time.
+6. Unit testing using phpunit and guzzle client.
 
 **Additionally implemented:**
 - **Custom validation rule** for each request.
 - **Custom Exception handler** for individual error.
 - **Log:** customized log handler for the error log, inside the project directory for error response. It helps to identify each error properly. Every day a new file (named with the datetime) will generate when the error occurs.
 - **Added indexing** for column registration code
-
-# Remaining tasks:
-- RabbitMQ: I can implement it if extra time is provided.
-- UI: I planned to do an UI using react or vue. I can implement it if extra time is provided.
-- I skipped the additional task for now.
 
 
 # NOTE:
@@ -96,3 +89,57 @@ For this, **clear cache**:
 php bin/console cache:clear
 ```
 
+
+# [UPDATED]
+- If you don't have this updated code, please update, by pulling the latest code.
+- And also, check the env file for the update, in case you missed.
+
+# Updated Installation
+- The dockerfile is updated, so build the docker file again.
+```shell
+docker compose build --no-cache
+```
+
+- Then run: `docker compose up -d`
+
+- new package is installed for this, you have to run `composer install` or `composer update` command again to install the new packages.
+```shell
+docker compose exec php-service bash
+```
+```shell
+composer install # or run, composer update
+```
+
+- **After installing everything run a cache clear command, because many things are updated now**
+```shell
+php bin/console cache:clear
+```
+
+## CORS
+- Run `composer install` to install the package for cors control.
+- For this backend, allow CORS origin from specific site. \
+  You can see this in `.env.example` file. The variable for this is: `CORS_ALLOW_ORIGIN=` \
+  Update it in `.env` if you feel necessary.
+- Then clear the cache: `php bin/console cache:clear`
+
+
+## Redis in Docker
+- updated docker compose and dockerfile for redis setup
+
+## Unit test
+- Latest phpunit package has conflict with latest symfony version. So, phpunit package is downgraded for this
+- To run unit test, run command from inside docker container:
+```shell
+php bin/phpunit
+```
+- If you want to see each individual test case result, run command:
+```shell
+php bin/phpunit --testdox
+```
+
+### Note on Unit Test
+- Faced API calling using WebTestCase class. So, instead, used guzzle client.
+- The variable value `TEST_BASE_URL` in `.env.test` file used the nginx service name because of docker container. 
+If you want to use the project directly then, you may use localhost
+- **The proper way** should be, create a mock db so that it does not affect the real DB. But for this time being, I hit the main DB to test.
+- 6 unit test cases are written. One of them is written as to be failed purposely. So, 5 test cases pass, 1 get failure.
